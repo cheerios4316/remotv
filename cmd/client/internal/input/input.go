@@ -34,6 +34,7 @@ func ParseFlags() Flags {
 
 	return Flags{
 		DeviceName: deviceName,
+		URI:        uri,
 		Port:       port,
 		ConfigPath: configPath,
 	}
