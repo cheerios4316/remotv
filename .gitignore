@@ -1,0 +1,5 @@
+bin
+extensions/*/node_modules
+extensions/*/dist
+extensions/*/package-lock.json
+go.sum

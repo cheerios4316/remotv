@@ -1,0 +1,10 @@
+:root { color-scheme: light dark; font: 16px/1.5 system-ui, sans-serif; }
+body { margin: 0; }
+main { max-width: 32rem; margin: 3rem auto; padding: 0 1.5rem; }
+h1 { font-size: 1.7rem; }
+label { display: block; font-weight: 600; margin-top: 1.5rem; }
+input { box-sizing: border-box; width: 100%; padding: .7rem; margin-top: .4rem; font: inherit; }
+.hint { font-size: .875rem; opacity: .8; margin-top: .4rem; }
+button { font: inherit; padding: .6rem 1rem; cursor: pointer; margin-top: 1rem; }
+#status { min-height: 1.5em; }
+#status[data-error="true"] { color: light-dark(#b42318, #ffb4ab); }

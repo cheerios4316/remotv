@@ -1,0 +1,13 @@
+{
+  "name": "remotv-firefox",
+  "version": "1.0.0",
+  "private": true,
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node --test tests/*.test.cjs",
+    "lint": "web-ext lint --config web-ext-config.cjs",
+    "build": "npm run lint && web-ext build --config web-ext-config.cjs --filename remotv-unsigned.xpi --overwrite-dest",
+    "sign": "npm run lint && web-ext sign --config web-ext-config.cjs --channel unlisted"
+  },
+  "devDependencies": { "web-ext": "10.7.0" }
+}

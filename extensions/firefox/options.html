@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Remotv settings</title>
+    <link rel="stylesheet" href="options.css">
+    <script src="settings.js" defer></script>
+    <script src="options.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <h1>Remotv settings</h1>
+      <p>Choose where to open your Firefox tabs.</p>
+      <form id="settings">
+        <label for="server-uri">Server URI</label>
+        <input id="server-uri" name="serverUri" type="text" placeholder="http://192.168.1.10:8080" required spellcheck="false">
+        <p class="hint">Include the HTTP server port. If you omit the scheme, HTTP is used.</p>
+        <label for="device-name">Device name</label>
+        <input id="device-name" name="deviceName" type="text" placeholder="living-room" required spellcheck="false">
+        <p class="hint">Use the exact name registered by your Remotv client.</p>
+        <button type="submit">Save settings</button>
+        <p id="status" role="status" aria-live="polite"></p>
+      </form>
+    </main>
+  </body>
+</html>
