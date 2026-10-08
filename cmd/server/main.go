@@ -12,6 +12,8 @@ import (
 )
 
 func main() {
+	fmt.Println("=== Remotv Server ===")
+	fmt.Println("Starting up...")
 	flags := input.ParseFlags()
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
@@ -24,8 +26,10 @@ func main() {
 
 	tcpServer := tcpserver.Server{Port: flags.TcpPort}
 	go tcpServer.Listen()
+	fmt.Printf("Listening for TCP connections on port %d\n", flags.TcpPort)
 
 	httpServer := httpserver.Server{Port: flags.HttpPort, TcpServer: &tcpServer}
+	fmt.Printf("Listening for HTTP requests on port %d\n", flags.HttpPort)
 	go httpServer.Listen()
 
 	<-ctx.Done()
