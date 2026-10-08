@@ -7,40 +7,81 @@ import (
 	"remotv/cmd/client/internal/input"
 )
 
+type CmdName string
+
+const (
+	CmdBrowser  CmdName = "browser"
+	CmdShutdown CmdName = "shutdown"
+)
+
 type Command struct {
-	Action string `json:"action"`
-	Args   string `json:"args"`
+	Action CmdName `json:"action"`
+	Args   string  `json:"args"`
+}
+
+func (c *Command) GetCommandBin(r *Runner) string {
+	return map[CmdName]string{
+		CmdBrowser:  r.Config.Browser,
+		CmdShutdown: r.Config.Shutdown,
+	}[c.Action]
+}
+
+func (c *Command) HasArgs() bool {
+	return map[CmdName]bool{
+		CmdBrowser:  true,
+		CmdShutdown: false,
+	}[c.Action]
+}
+
+func (c *Command) Validate() error {
+	switch c.Action {
+	case CmdBrowser, CmdShutdown:
+		return nil
+	default:
+		return fmt.Errorf("unknown command %q provided", c.Action)
+	}
 }
 
 type Runner struct {
 	Config input.Config
 }
 
-func (r *Runner) Run(message string) {
-	fmt.Printf("received message %q", message)
-
+func (r *Runner) ParseMessage(message string) (Command, error) {
 	var cmd Command
-	err := json.Unmarshal([]byte(message), &cmd)
+
+	if err := json.Unmarshal([]byte(message), &cmd); err != nil {
+		return Command{}, err
+	}
+
+	if !cmd.HasArgs() {
+		cmd.Args = ""
+	}
+
+	return cmd, nil
+}
+
+func (r *Runner) Run(message string) error {
+	cmd, err := r.ParseMessage(message)
 	if err != nil {
 		fmt.Printf("invalid JSON message %q\n", message)
-		return
+		return err
 	}
 
-	bin, ok := r.getMap()[cmd.Action]
-	if !ok {
-		fmt.Printf("received invalid command %q\n", cmd.Action)
-		return
+	if err := cmd.Validate(); err != nil {
+		fmt.Println(err.Error())
+		return err
 	}
+
+	fmt.Printf("Received request to execute command %q with args %q\n", cmd.Action, cmd.Args)
+
+	bin := cmd.GetCommandBin(r)
 
 	osCmd := exec.Command(bin, cmd.Args)
 	err = osCmd.Run()
 	if err != nil {
-		fmt.Printf("error during execution of received command: %s", err.Error())
+		fmt.Printf("error during execution of received command: %s\n", err.Error())
+		return err
 	}
-}
 
-func (r *Runner) getMap() map[string]string {
-	return map[string]string{
-		"browser": r.Config.Browser,
-	}
+	return nil
 }

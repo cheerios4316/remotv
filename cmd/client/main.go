@@ -37,7 +37,6 @@ func main() {
 	go func() {
 		defer close(shutdownDone)
 		<-ctx.Done()
-		fmt.Fprintln(conn, "Disconnecting")
 		fmt.Println("shutting down...")
 		conn.Close()
 	}()

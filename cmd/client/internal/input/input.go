@@ -41,12 +41,14 @@ func ParseFlags() Flags {
 }
 
 type Config struct {
-	Browser string
+	Browser  string
+	Shutdown string
 }
 
 func DefaultConfig() Config {
 	return Config{
-		Browser: "firefox",
+		Browser:  "firefox",
+		Shutdown: "shutdown now",
 	}
 }
 

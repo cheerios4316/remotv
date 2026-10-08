@@ -1,12 +1,15 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"remotv/cmd/server/command"
 	tcpserver "remotv/cmd/server/internal/tcp-server"
+	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -69,9 +72,40 @@ func HandlePostCommand(tcpServer *tcpserver.Server) func(w http.ResponseWriter, 
 			return
 		}
 
-		fmt.Fprintln(client, msg)
+		ctx, cancel := context.WithTimeout(r.Context(), 30*time.Second)
+		defer cancel()
+		result, err := tcpServer.SendCommand(ctx, client, msg)
+		if err != nil {
+			status := http.StatusBadGateway
+			if ctx.Err() == context.DeadlineExceeded {
+				status = http.StatusGatewayTimeout
+			}
+			http.Error(w, "Error receiving client response: "+err.Error(), status)
+			return
+		}
 
-		jsonResponse(w, "ok")
+		// expected: ok=<0|1>|<msg>
+		// eg. "ok=1|" or "ok=0|error doing stuff"
+		parts := strings.SplitN(result, "|", 2)
+
+		if len(parts) != 2 {
+			jsonResponse(w, "received wrong response from called client")
+			return
+		}
+
+		okStr, errMsg := parts[0], parts[1]
+		okParts := strings.SplitN(okStr, "=", 2)
+		if len(okParts) != 2 {
+			jsonResponse(w, "received wrong response from called client")
+			return
+		}
+
+		if okParts[1] != "1" {
+			jsonResponse(w, fmt.Sprintf("called client failed with error %q", errMsg))
+			return
+		}
+
+		jsonResponse(w, "request executed on the called client successfully")
 	}
 }
 
